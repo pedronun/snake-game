@@ -5,6 +5,7 @@ import { PanGestureHandler } from "react-native-gesture-handler";
 import { Colors } from "../../global/color";
 import { Direction, GestureEventType } from "../../types/game";
 import Header from "../Header/Header";
+import Score from "../Score/Score";
 
 function Game() {
   const [isGamePaused, setIsGamePaused] = useState<boolean>(false);
@@ -41,7 +42,13 @@ function Game() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
+      <Header
+        onPauseGame={handlePauseGame}
+        onReloadGame={handleReloadGame}
+        isGamePaused={isGamePaused}
+      >
+        <Score score={0} />
+      </Header>
       <PanGestureHandler onGestureEvent={handleGesture}>
         <View style={styles.table}>
           <Text>Game</Text>
