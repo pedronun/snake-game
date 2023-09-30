@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
   snake: {
     width: 15,
     height: 15,
-    borderRadius: 7,
     backgroundColor: Colors.primary,
     position: "absolute",
   },
