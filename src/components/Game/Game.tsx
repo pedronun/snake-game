@@ -11,6 +11,7 @@ import Food from "../Food/Food";
 import Header from "../Header/Header";
 import Score from "../Score/Score";
 import Snake from "../Snake/Snake";
+import GameOverModal from "../GameOverModal/GameOverModal";
 
 const GAME_BOUNDS = { xMin: 0, xMax: 35, yMin: 0, yMax: 63 };
 
@@ -113,6 +114,7 @@ function Game() {
         <View style={styles.table}>
           <Snake snake={snake} />
           <Food food={food} />
+          {isGameOver ? <GameOverModal score={score} onReloadGame={handleReloadGame} /> : null}
         </View>
       </PanGestureHandler>
     </SafeAreaView>
