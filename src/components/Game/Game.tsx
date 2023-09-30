@@ -24,7 +24,7 @@ function Game() {
     randomFoodPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax)
   );
 
-  const handleGesture = (event: GestureEventType) => {
+  const handleGesture = useCallback((event: GestureEventType) => {
     const { translationX, translationY } = event.nativeEvent;
     if (Math.abs(translationX) > Math.abs(translationY)) {
       if (translationX > 0) {
@@ -39,7 +39,7 @@ function Game() {
         setDirection(Direction.Up);
       }
     }
-  };
+  }, []);
 
   const handleSnakeMove = useCallback(() => {
     const snakeHead = snake[0];
@@ -74,20 +74,20 @@ function Game() {
     } else {
       setSnake([newHead, ...snake.slice(0, -1)]);
     }
-  }, []);
+  }, [direction, food, score, snake]);
 
-  const handleReloadGame = () => {
+  const handleReloadGame = useCallback(() => {
     setSnake([{ x: 5, y: 5 }]);
     setFood(randomFoodPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax));
     setIsGameOver(false);
     setScore(0);
     setDirection(Direction.Right);
     setIsGamePaused(false);
-  };
+  }, []);
 
-  const handlePauseGame = () => {
-    setIsGamePaused(!isGamePaused);
-  };
+  const handlePauseGame = useCallback(() => {
+    setIsGamePaused((prev) => !prev);
+  }, []);
 
   useEffect(() => {
     if (!isGameOver) {
