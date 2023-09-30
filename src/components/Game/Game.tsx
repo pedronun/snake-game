@@ -1,24 +1,68 @@
-import { SafeAreaView, Text, View } from "react-native";
-import {
-  GestureEvent,
-  PanGestureHandler,
-  PanGestureHandlerEventPayload,
-} from "react-native-gesture-handler";
+import { useCallback, useState } from "react";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { PanGestureHandler } from "react-native-gesture-handler";
+
+import { Colors } from "../../global/color";
+import { Direction, GestureEventType } from "../../types/game";
 import Header from "../Header/Header";
 
 function Game() {
-  const handleGesture = (e: GestureEvent<PanGestureHandlerEventPayload>) => {
-    console.log("gesture", e.nativeEvent);
+  const [isGamePaused, setIsGamePaused] = useState<boolean>(false);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [direction, setDirection] = useState<Direction>(Direction.Right);
+
+  const handleGesture = (e: GestureEventType) => {
+    const { translationX, translationY } = e.nativeEvent;
+
+    if (Math.abs(translationX) > Math.abs(translationY)) {
+      if (translationX > 0) {
+        setDirection(Direction.Right);
+      } else {
+        setDirection(Direction.Left);
+      }
+    } else {
+      if (translationY > 0) {
+        setDirection(Direction.Down);
+      } else {
+        setDirection(Direction.Up);
+      }
+    }
   };
 
+  const handlePauseGame = useCallback(() => {
+    setIsGamePaused((prev) => !prev);
+  }, []);
+
+  const handleReloadGame = useCallback(() => {
+    setIsGameOver(false);
+    setDirection(Direction.Right);
+    setIsGamePaused(false);
+  }, []);
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <Header />
       <PanGestureHandler onGestureEvent={handleGesture}>
-        <Text>Real Game</Text>
+        <View style={styles.table}>
+          <Text>Game</Text>
+        </View>
       </PanGestureHandler>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginHorizontal: 10,
+    gap: 10,
+  },
+  table: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+  },
+});
 
 export default Game;
