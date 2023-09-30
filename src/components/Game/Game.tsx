@@ -5,7 +5,7 @@ import { PanGestureHandler } from "react-native-gesture-handler";
 import { Colors } from "../../global/color";
 import { checkEatsFood } from "../../helpers/checkEatsFood";
 import { checkGameIsOver } from "../../helpers/checkGameIsOver";
-import { randomFoodPosition } from "../../helpers/randomFoodPosition";
+import { randomPosition } from "../../helpers/randomPosition";
 import { Coordinate, Direction, GestureEventType } from "../../types/game";
 import Food from "../Food/Food";
 import Header from "../Header/Header";
@@ -17,11 +17,13 @@ const GAME_BOUNDS = { xMin: 0, xMax: 35, yMin: 0, yMax: 63 };
 function Game() {
   const [isGamePaused, setIsGamePaused] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [direction, setDirection] = useState<Direction>(Direction.Right);
-  const [snake, setSnake] = useState<Coordinate[]>([{ x: 5, y: 5 }]);
+  const [direction, setDirection] = useState<Direction>(Direction.Up);
+  const [snake, setSnake] = useState<Coordinate[]>([
+    randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax),
+  ]);
   const [score, setScore] = useState(0);
   const [food, setFood] = useState<Coordinate>(
-    randomFoodPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax)
+    randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax)
   );
 
   const handleGesture = useCallback((event: GestureEventType) => {
@@ -68,7 +70,7 @@ function Game() {
     }
 
     if (checkEatsFood(newHead, food, 2)) {
-      setFood(randomFoodPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax));
+      setFood(randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax));
       setSnake([newHead, ...snake]);
       setScore(score + 10);
     } else {
@@ -77,11 +79,11 @@ function Game() {
   }, [direction, food, score, snake]);
 
   const handleReloadGame = useCallback(() => {
-    setSnake([{ x: 5, y: 5 }]);
-    setFood(randomFoodPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax));
+    setSnake([randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax)]);
+    setFood(randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax));
     setIsGameOver(false);
     setScore(0);
-    setDirection(Direction.Right);
+    setDirection(Direction.Up);
     setIsGamePaused(false);
   }, []);
 
@@ -105,7 +107,7 @@ function Game() {
         onReloadGame={handleReloadGame}
         isGamePaused={isGamePaused}
       >
-        <Score score={0} />
+        <Score score={score} />
       </Header>
       <PanGestureHandler onGestureEvent={handleGesture}>
         <View style={styles.table}>
