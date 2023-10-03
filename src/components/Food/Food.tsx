@@ -7,19 +7,17 @@ interface IFoodProps {
 
 function Food({ food }: IFoodProps) {
   return (
-    <View
+    <Text
       style={{
-        width: 20,
-        height: 20,
-        borderRadius: 7,
         position: "absolute",
         left: food.x * 10,
         top: food.y * 10,
+        fontSize: 16,
       }}
     >
-      <Text>🍎</Text>
-    </View>
-  )
+      🍎
+    </Text>
+  );
 }
 
 export default Food;
