@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
@@ -5,16 +6,15 @@ import { PanGestureHandler } from "react-native-gesture-handler";
 import { Colors } from "../../global/color";
 import { checkEatsFood } from "../../helpers/checkEatsFood";
 import { checkGameIsOver } from "../../helpers/checkGameIsOver";
+import { checkSelfCollision } from "../../helpers/checkSelfCollision";
 import { randomPosition } from "../../helpers/randomPosition";
 import { Coordinate, Direction, GestureEventType } from "../../types/game";
 import Food from "../Food/Food";
+import GameOverModal from "../GameOverModal/GameOverModal";
 import Header from "../Header/Header";
+import Record from "../Record/Record";
 import Score from "../Score/Score";
 import Snake from "../Snake/Snake";
-import GameOverModal from "../GameOverModal/GameOverModal";
-import { checkSelfCollision } from "../../helpers/checkSelfCollision";
-import Record from "../Record/Record";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const GAME_BOUNDS = { xMin: 0, xMax: 35, yMin: 0, yMax: 67 };
 
