@@ -12,13 +12,11 @@ import Header from "../Header/Header";
 import Score from "../Score/Score";
 import Snake from "../Snake/Snake";
 import GameOverModal from "../GameOverModal/GameOverModal";
+import { checkSelfCollision } from "../../helpers/checkSelfCollision";
+import Record from "../Record/Record";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const GAME_BOUNDS = { xMin: 0, xMax: 35, yMin: 0, yMax: 63 };
-
-function checkSelfCollision(snake: Coordinate[]): boolean {
-  const [head, ...body] = snake;
-  return body.some((part: Coordinate) => part.x === head.x && part.y === head.y);
-}
+const GAME_BOUNDS = { xMin: 0, xMax: 35, yMin: 0, yMax: 67 };
 
 function Game() {
   const [isGamePaused, setIsGamePaused] = useState(false);
@@ -28,32 +26,41 @@ function Game() {
     randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax),
   ]);
   const [score, setScore] = useState(0);
+  const [record, setRecord] = useState(0);
   const [food, setFood] = useState<Coordinate>(
     randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax)
   );
 
   const handleGesture = useCallback((event: GestureEventType) => {
     const { translationX, translationY } = event.nativeEvent;
+
     if (Math.abs(translationX) > Math.abs(translationY)) {
       if (translationX > 0) {
-        setDirection(Direction.Right);
+        setDirection((prev) =>
+          prev === Direction.Left ? prev : Direction.Right
+        );
       } else {
-        setDirection(Direction.Left);
+        setDirection((prev) =>
+          prev === Direction.Right ? prev : Direction.Left
+        );
       }
     } else {
       if (translationY > 0) {
-        setDirection(Direction.Down);
+        setDirection((prev) => (prev === Direction.Up ? prev : Direction.Down));
       } else {
-        setDirection(Direction.Up);
+        setDirection((prev) => (prev === Direction.Down ? prev : Direction.Up));
       }
     }
   }, []);
 
-  const handleSnakeMove = useCallback(() => {
+  const handleSnakeMove = useCallback(async () => {
     const snakeHead = snake[0];
     const newHead = { ...snakeHead };
 
-    if (checkGameIsOver({ area: GAME_BOUNDS, head: newHead }) || checkSelfCollision(snake)) {
+    if (
+      checkGameIsOver({ area: GAME_BOUNDS, head: newHead }) ||
+      checkSelfCollision({ head: newHead, rest: snake.slice(1) })
+    ) {
       setIsGameOver((prev) => !prev);
       return;
     }
@@ -76,7 +83,7 @@ function Game() {
     }
 
     if (checkEatsFood(newHead, food, 2)) {
-      setFood(randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax));
+      setFood(randomPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax, snake));
       setSnake([newHead, ...snake]);
       setScore(score + 10);
     } else {
@@ -106,6 +113,19 @@ function Game() {
     }
   }, [snake, isGameOver, isGamePaused]);
 
+  useEffect(() => {
+    const handleRecord = async () => {
+      const record = (await AsyncStorage.getItem("@record")) || "0";
+
+      if (score > parseInt(record)) {
+        await AsyncStorage.setItem("@record", score.toString());
+        setRecord(score);
+      }
+    };
+
+    handleRecord();
+  }, [score]);
+
   return (
     <SafeAreaView style={styles.container}>
       <Header
@@ -113,13 +133,18 @@ function Game() {
         onReloadGame={handleReloadGame}
         isGamePaused={isGamePaused}
       >
-        <Score score={score} />
+        <>
+          <Score score={score} />
+          <Record record={record} />
+        </>
       </Header>
       <PanGestureHandler onGestureEvent={handleGesture}>
         <View style={styles.table}>
           <Snake snake={snake} />
           <Food food={food} />
-          {isGameOver ? <GameOverModal score={score} onReloadGame={handleReloadGame} /> : null}
+          {isGameOver ? (
+            <GameOverModal score={score} onReloadGame={handleReloadGame} />
+          ) : null}
         </View>
       </PanGestureHandler>
     </SafeAreaView>
