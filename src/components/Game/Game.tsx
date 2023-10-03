@@ -15,6 +15,11 @@ import GameOverModal from "../GameOverModal/GameOverModal";
 
 const GAME_BOUNDS = { xMin: 0, xMax: 35, yMin: 0, yMax: 63 };
 
+function checkSelfCollision(snake: Coordinate[]): boolean {
+  const [head, ...body] = snake;
+  return body.some((part: Coordinate) => part.x === head.x && part.y === head.y);
+}
+
 function Game() {
   const [isGamePaused, setIsGamePaused] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -48,7 +53,7 @@ function Game() {
     const snakeHead = snake[0];
     const newHead = { ...snakeHead };
 
-    if (checkGameIsOver({ area: GAME_BOUNDS, head: newHead })) {
+    if (checkGameIsOver({ area: GAME_BOUNDS, head: newHead }) || checkSelfCollision(snake)) {
       setIsGameOver((prev) => !prev);
       return;
     }
